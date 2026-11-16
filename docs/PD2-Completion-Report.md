@@ -71,13 +71,15 @@ EzyTech is a Django + PostgreSQL e-commerce platform for technology products. Pr
 | `feature/product-catalog` | Catalog + checkout vertical slice | PR #1 → `develop` | Merged |
 | `feature/product-catalog-fixes` | Fix catalog crash, product CRUD, validation, role access, tests | PR #3 → `develop` | Merged |
 | `feature/order-management` | Order detail, filtering/search, dashboard statistics, account tests | PR #4 → `develop` | Merged |
-| `develop` → `main` | Final PD2 increment | PR #5 | Merged |
+| `feature/test-database-config` | Automatic SQLite test database fallback for Supabase | PR #6 → `develop` | Merged |
+| `develop` → `main` | First PD2 release increment | PR #5 → `main` | Merged |
+| `develop` → `main` | Final PD2 release increment (test config + report) | PR #7 → `main` | Merged |
 
 Merged feature branches were kept. `main` only receives merged release PRs.
 
 ## 4. Testing Summary
 
-- **42 automated tests pass** using `python manage.py test --settings=config.settings_test`.
+- **42 automated tests pass** using `python manage.py test` (test runs automatically use an in-memory SQLite database because Supabase's pooler blocks Django test-database creation).
 - Coverage includes registration, login, profile updates, role dashboards, product CRUD permissions, validation, checkout, stock deduction, order isolation, cancellation, deletion, status transitions, stock restoration, order detail access, filtering, search, and dashboard statistics.
 - Manual smoke test performed on PostgreSQL/Supabase for catalog, product management, checkout, order detail, filters, and both dashboards.
 
@@ -93,7 +95,7 @@ All PD2 requirements are complete. Optional future work:
 
 ## 6. Outstanding Issues
 
-- Supabase's connection pooler does not support Django's test-database creation. Tests therefore use an in-memory SQLite settings module (`config.settings_test`), while the application itself uses PostgreSQL/Supabase. This is documented in the README.
+- Supabase's connection pooler does not support Django's test-database creation. `manage.py test` therefore automatically switches to an in-memory SQLite database, while the application itself uses PostgreSQL/Supabase. An explicit `config.settings_test` module is also provided. This is documented in the README.
 - The optional `sample_products` fixture creates catalog seed data without a `created_by` user because it is system-provided. Products created through the admin UI are linked to the admin who created them.
 - Checkout is single-product per order, matching the approved scope; a multi-item cart is future work.
 - Development test accounts must be rotated or removed before public deployment.
