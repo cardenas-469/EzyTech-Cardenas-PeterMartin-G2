@@ -1,31 +1,89 @@
 {% extends 'accounts/base.html' %}
+{% block title %}{% if is_admin %}All Orders{% else %}My Orders{% endif %}{% endblock %}
 {% block content %}
-<div class="container mt-4">
-    <h2>My Order History</h2>
-    <a href="{% url 'product_list' %}" class="btn btn-secondary mb-3">Back to Catalog</a>
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Order ID</th>
-                <th>Product</th>
-                <th>Quantity</th>
-                <th>Total Price</th>
-                <th>Status</th>
-                <th>Date</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for order in orders %}
-            <tr>
-                <td>#{{ order.id }}</td>
-                <td>{{ order.product.name }}</td>
-                <td>{{ order.quantity }}</td>
-                <td>${{ order.total_price }}</td>
-                <td>{{ order.status }}</td>
-                <td>{{ order.created_at }}</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+<h2>{% if is_admin %}All Orders{% else %}My Order History{% endif %}</h2>
+<p class="muted">
+  {% if is_admin %}
+    Review every customer order and update its status.
+  {% else %}
+    Track your orders. Pending orders can be cancelled, and cancelled orders can be deleted.
+  {% endif %}
+</p>
+
+<div class="toolbar">
+  <form method="get">
+    <input type="search" name="q" value="{{ query }}" placeholder="Search product{% if is_admin %} or customer{% endif %}...">
+    {% if status_filter %}<input type="hidden" name="status" value="{{ status_filter }}">{% endif %}
+    <button type="submit" class="btn">Search</button>
+  </form>
+  <a href="{% url 'order_history' %}" class="btn secondary">Reset</a>
 </div>
+
+<div class="toolbar">
+  <a href="{% url 'order_history' %}" class="btn {% if not status_filter %}secondary{% endif %} small">All</a>
+  {% for value, label in status_choices %}
+    <a href="{% url 'order_history' %}?status={{ value }}{% if query %}&q={{ query|urlencode }}{% endif %}"
+       class="btn {% if status_filter != value %}secondary{% endif %} small">{{ label }}</a>
+  {% endfor %}
+</div>
+
+{% if orders %}
+<table>
+  <thead>
+    <tr>
+      <th>Order</th>
+      {% if is_admin %}<th>Customer</th>{% endif %}
+      <th>Product</th>
+      <th>Qty</th>
+      <th>Total</th>
+      <th>Status</th>
+      <th>Date</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for order in orders %}
+    <tr>
+      <td>#{{ order.id }}</td>
+      {% if is_admin %}<td>{{ order.user.username }}</td>{% endif %}
+      <td>{{ order.product.name }}</td>
+      <td>{{ order.quantity }}</td>
+      <td>${{ order.total_price }}</td>
+      <td><span class="badge {{ order.status }}">{{ order.status }}</span></td>
+      <td>{{ order.created_at|date:"M d, Y H:i" }}</td>
+      <td>
+        <a href="{% url 'order_detail' order.id %}" class="btn secondary small">View</a>
+        {% if is_admin %}
+          <a href="{% url 'order_status_update' order.id %}" class="btn secondary small">Update status</a>
+          <form method="post" action="{% url 'order_delete' order.id %}" class="inline-form"
+                onsubmit="return confirm('Delete order #{{ order.id }}?');">
+            {% csrf_token %}
+            <button type="submit" class="btn danger small">Delete</button>
+          </form>
+        {% else %}
+          {% if order.status == 'Pending' %}
+            <form method="post" action="{% url 'order_cancel' order.id %}" class="inline-form"
+                  onsubmit="return confirm('Cancel order #{{ order.id }}?');">
+              {% csrf_token %}
+              <button type="submit" class="btn danger small">Cancel</button>
+            </form>
+          {% elif order.status == 'Cancelled' %}
+            <form method="post" action="{% url 'order_delete' order.id %}" class="inline-form"
+                  onsubmit="return confirm('Delete cancelled order #{{ order.id }}?');">
+              {% csrf_token %}
+              <button type="submit" class="btn secondary small">Delete</button>
+            </form>
+          {% endif %}
+        {% endif %}
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+  <p class="empty">
+    No orders found.
+    {% if not is_admin %} <a href="{% url 'product_list' %}">Browse products</a>.{% endif %}
+  </p>
+{% endif %}
 {% endblock %}

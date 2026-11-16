@@ -3,7 +3,41 @@
 {% block content %}
 <h2>Customer Dashboard</h2>
 <p>Welcome, {{ user.first_name|default:user.username }}. You are logged in as a <strong>Customer</strong>.</p>
+
+<div class="stats">
+  <div class="stat"><div class="value">{{ order_count }}</div><div class="label">Total orders</div></div>
+  <div class="stat"><div class="value">{{ pending_count }}</div><div class="label">Pending orders</div></div>
+  <div class="stat"><div class="value">{{ completed_count }}</div><div class="label">Completed orders</div></div>
+  <div class="stat"><div class="value">${{ total_spent }}</div><div class="label">Total spent</div></div>
+</div>
+
+<h3 class="section-title">Quick links</h3>
 <ul>
+  <li><a href="{% url 'product_list' %}">Browse products</a></li>
+  <li><a href="{% url 'order_history' %}">My orders</a></li>
   <li><a href="{% url 'profile' %}">My profile</a></li>
 </ul>
+
+<h3 class="section-title">Recent orders</h3>
+{% if recent_orders %}
+<table>
+  <thead>
+    <tr><th>Order</th><th>Product</th><th>Qty</th><th>Total</th><th>Status</th><th></th></tr>
+  </thead>
+  <tbody>
+    {% for order in recent_orders %}
+    <tr>
+      <td>#{{ order.id }}</td>
+      <td>{{ order.product.name }}</td>
+      <td>{{ order.quantity }}</td>
+      <td>${{ order.total_price }}</td>
+      <td><span class="badge {{ order.status }}">{{ order.status }}</span></td>
+      <td><a href="{% url 'order_detail' order.id %}">View</a></td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+  <p class="empty">You have not placed any orders yet. <a href="{% url 'product_list' %}">Browse products</a>.</p>
+{% endif %}
 {% endblock %}

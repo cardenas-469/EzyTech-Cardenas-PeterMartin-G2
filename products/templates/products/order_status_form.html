@@ -1,0 +1,18 @@
+{% extends 'accounts/base.html' %}
+{% block title %}Update Order Status{% endblock %}
+{% block content %}
+<h2>Update Order #{{ order.id }}</h2>
+<p>
+  Customer: <strong>{{ order.user.username }}</strong> |
+  Product: <strong>{{ order.product.name }}</strong> |
+  Quantity: <strong>{{ order.quantity }}</strong> |
+  Current status: <span class="badge {{ order.status }}">{{ order.status }}</span>
+</p>
+
+<form method="post" novalidate>
+  {% csrf_token %}
+  {{ form.as_p }}
+  <button type="submit" class="btn">Save Status</button>
+  <a href="{% url 'order_history' %}" class="btn secondary">Cancel</a>
+</form>
+{% endblock %}
