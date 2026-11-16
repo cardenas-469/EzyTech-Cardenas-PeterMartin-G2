@@ -127,5 +127,6 @@ Increment PRs: feature branches → `develop`; then `develop` → `main`.
 
 ## Project Documentation
 
-- `docs/EzyTech-Cardenas-PeterMartin-G2-PD2.pdf` – PD2 completion report
-- `docs/PD2-Completion-Report.md` – editable source of the report
+- `docs/EzyTech-Cardenas-PeterMartin-G2-PD2.pdf` – completed official PD2 report with user-flow screenshots
+- `docs/EzyTech-Cardenas-PeterMartin-G2-PD2.docx` – editable report source
+- `docs/screenshots/` – screenshots used in the report
