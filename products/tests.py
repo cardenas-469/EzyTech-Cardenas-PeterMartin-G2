@@ -221,7 +221,7 @@ class OrderManagementTests(BaseProductTestCase):
         )
         self.client.force_login(self.customer)
         response = self.client.get(reverse('order_history'))
-        self.assertContains(response, f'#{self.order.id}')
+        self.assertContains(response, f'<td>#{self.order.id}</td>')
         self.assertNotContains(response, self.other_customer.username)
 
     def test_admin_sees_all_orders(self):
@@ -334,3 +334,77 @@ class OrderManagementTests(BaseProductTestCase):
         self.client.force_login(self.customer)
         response = self.client.get(reverse('order_status_update', args=[self.order.pk]))
         self.assertEqual(response.status_code, 403)
+
+
+class OrderDetailAndFilterTests(BaseProductTestCase):
+    def setUp(self):
+        super().setUp()
+        self.pending_order = Order.objects.create(
+            user=self.customer,
+            product=self.product,
+            quantity=1,
+            total_price=self.product.price,
+        )
+        self.completed_order = Order.objects.create(
+            user=self.customer,
+            product=self.product,
+            quantity=2,
+            total_price=self.product.price * 2,
+            status=Order.STATUS_COMPLETED,
+        )
+
+    def test_owner_can_view_order_detail(self):
+        self.client.force_login(self.customer)
+        response = self.client.get(reverse('order_detail', args=[self.pending_order.pk]))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, f'Order #{self.pending_order.id}')
+        self.assertContains(response, 'Laptop Pro')
+        self.assertContains(response, 'Cancel order')
+
+    def test_other_customer_cannot_view_order_detail(self):
+        self.client.force_login(self.other_customer)
+        response = self.client.get(
+            reverse('order_detail', args=[self.pending_order.pk]),
+            follow=True,
+        )
+        self.assertRedirects(response, reverse('order_history'))
+        self.assertContains(response, 'only view your own orders')
+
+    def test_admin_can_view_any_order_detail(self):
+        self.client.force_login(self.admin)
+        response = self.client.get(reverse('order_detail', args=[self.pending_order.pk]))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, self.customer.username)
+        self.assertContains(response, 'Update status')
+
+    def test_history_can_be_filtered_by_status(self):
+        self.client.force_login(self.customer)
+        response = self.client.get(reverse('order_history'), {'status': Order.STATUS_COMPLETED})
+        self.assertContains(response, f'<td>#{self.completed_order.id}</td>')
+        self.assertNotContains(response, f'<td>#{self.pending_order.id}</td>')
+
+    def test_history_can_be_searched_by_product(self):
+        phone = Product.objects.create(
+            name='Nova Phone',
+            description='A smartphone.',
+            price=Decimal('999.00'),
+            stock=3,
+            created_by=self.admin,
+        )
+        phone_order = Order.objects.create(
+            user=self.customer,
+            product=phone,
+            quantity=1,
+            total_price=phone.price,
+        )
+        self.client.force_login(self.customer)
+        response = self.client.get(reverse('order_history'), {'q': 'Nova Phone'})
+        self.assertContains(response, f'<td>#{phone_order.id}</td>')
+        self.assertNotContains(response, f'<td>#{self.pending_order.id}</td>')
+
+    def test_admin_can_search_orders_by_customer(self):
+        self.client.force_login(self.admin)
+        response = self.client.get(reverse('order_history'), {'q': 'other'})
+        self.assertNotContains(response, f'<td>#{self.pending_order.id}</td>')
+        response = self.client.get(reverse('order_history'), {'q': 'customer'})
+        self.assertContains(response, f'<td>#{self.pending_order.id}</td>')
