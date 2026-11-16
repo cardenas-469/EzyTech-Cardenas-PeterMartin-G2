@@ -128,10 +128,49 @@ def order_history(request):
     orders = Order.objects.select_related('product', 'user')
     if not is_admin:
         orders = orders.filter(user=request.user)
+
+    status_filter = request.GET.get('status', '').strip()
+    valid_statuses = {value for value, _ in Order.STATUS_CHOICES}
+    if status_filter in valid_statuses:
+        orders = orders.filter(status=status_filter)
+    else:
+        status_filter = ''
+
+    query = request.GET.get('q', '').strip()
+    if query:
+        matching = orders.filter(product__name__icontains=query)
+        if is_admin:
+            matching = matching | orders.filter(user__username__icontains=query)
+        orders = matching.distinct()
+
     return render(
         request,
         'products/order_history.html',
-        {'orders': orders, 'is_admin': is_admin},
+        {
+            'orders': orders,
+            'is_admin': is_admin,
+            'status_filter': status_filter,
+            'status_choices': Order.STATUS_CHOICES,
+            'query': query,
+        },
+    )
+
+
+@login_required
+def order_detail(request, pk):
+    order = get_object_or_404(
+        Order.objects.select_related('product', 'user'),
+        pk=pk,
+    )
+    is_admin = request.user.role == 'admin'
+    if order.user_id != request.user.id and not is_admin:
+        messages.error(request, 'You can only view your own orders.')
+        return redirect('order_history')
+
+    return render(
+        request,
+        'products/order_detail.html',
+        {'order': order, 'is_admin': is_admin},
     )
 
 

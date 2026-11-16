@@ -1,0 +1,42 @@
+{% extends 'accounts/base.html' %}
+{% block title %}Order #{{ order.id }}{% endblock %}
+{% block content %}
+<h2>Order #{{ order.id }}</h2>
+<p><span class="badge {{ order.status }}">{{ order.status }}</span></p>
+
+<table>
+  <tbody>
+    <tr><th>Customer</th><td>{{ order.user.username }}</td></tr>
+    <tr><th>Product</th><td>{{ order.product.name }}</td></tr>
+    <tr><th>Unit price</th><td>${{ order.product.price }}</td></tr>
+    <tr><th>Quantity</th><td>{{ order.quantity }}</td></tr>
+    <tr><th>Order total</th><td><strong>${{ order.total_price }}</strong></td></tr>
+    <tr><th>Placed on</th><td>{{ order.created_at|date:"M d, Y H:i" }}</td></tr>
+  </tbody>
+</table>
+
+<div class="toolbar" style="margin-top:18px">
+  <a href="{% url 'order_history' %}" class="btn secondary">Back to orders</a>
+
+  {% if is_admin %}
+    <a href="{% url 'order_status_update' order.id %}" class="btn">Update status</a>
+    <form method="post" action="{% url 'order_delete' order.id %}" class="inline-form"
+          onsubmit="return confirm('Delete order #{{ order.id }}?');">
+      {% csrf_token %}
+      <button type="submit" class="btn danger">Delete order</button>
+    </form>
+  {% elif order.status == 'Pending' %}
+    <form method="post" action="{% url 'order_cancel' order.id %}" class="inline-form"
+          onsubmit="return confirm('Cancel order #{{ order.id }}?');">
+      {% csrf_token %}
+      <button type="submit" class="btn danger">Cancel order</button>
+    </form>
+  {% elif order.status == 'Cancelled' %}
+    <form method="post" action="{% url 'order_delete' order.id %}" class="inline-form"
+          onsubmit="return confirm('Delete cancelled order #{{ order.id }}?');">
+      {% csrf_token %}
+      <button type="submit" class="btn danger">Delete order</button>
+    </form>
+  {% endif %}
+</div>
+{% endblock %}
