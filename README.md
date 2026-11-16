@@ -20,7 +20,7 @@ Customers can browse the product catalog, view live stock, place an order throug
 - A product that already has orders cannot be deleted (`PROTECT`), preserving order history.
 
 **Frontend**
-- Pages: `/products/` (catalog), `/products/add/`, `/products/<id>/edit/`, `/products/<id>/delete/`, `/products/checkout/<id>/`, `/products/orders/`, `/products/orders/<id>/status/`.
+- Pages: `/products/` (catalog), `/products/add/`, `/products/<id>/edit/`, `/products/<id>/delete/`, `/products/checkout/<id>/`, `/products/orders/`, `/products/orders/<id>/` (detail), `/products/orders/<id>/status/`.
 - Both role dashboards link to the feature.
 
 **Access rules**
@@ -110,7 +110,7 @@ Supabase's connection pooler does not support Django's test-database creation, s
 python manage.py test --settings=config.settings_test
 ```
 
-Current suite: 25 tests covering catalog access, product CRUD permissions, validation, checkout/stock deduction, order isolation, cancellation, deletion, status transitions, and stock restoration.
+Current suite: 42 tests covering registration/login/profile, role dashboards, catalog access, product CRUD permissions, validation, checkout/stock deduction, order isolation, cancellation, deletion, status transitions, order detail access, filtering/search, dashboard statistics, and stock restoration.
 
 ## Branching Workflow
 

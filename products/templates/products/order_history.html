@@ -10,6 +10,23 @@
   {% endif %}
 </p>
 
+<div class="toolbar">
+  <form method="get">
+    <input type="search" name="q" value="{{ query }}" placeholder="Search product{% if is_admin %} or customer{% endif %}...">
+    {% if status_filter %}<input type="hidden" name="status" value="{{ status_filter }}">{% endif %}
+    <button type="submit" class="btn">Search</button>
+  </form>
+  <a href="{% url 'order_history' %}" class="btn secondary">Reset</a>
+</div>
+
+<div class="toolbar">
+  <a href="{% url 'order_history' %}" class="btn {% if not status_filter %}secondary{% endif %} small">All</a>
+  {% for value, label in status_choices %}
+    <a href="{% url 'order_history' %}?status={{ value }}{% if query %}&q={{ query|urlencode }}{% endif %}"
+       class="btn {% if status_filter != value %}secondary{% endif %} small">{{ label }}</a>
+  {% endfor %}
+</div>
+
 {% if orders %}
 <table>
   <thead>
@@ -35,6 +52,7 @@
       <td><span class="badge {{ order.status }}">{{ order.status }}</span></td>
       <td>{{ order.created_at|date:"M d, Y H:i" }}</td>
       <td>
+        <a href="{% url 'order_detail' order.id %}" class="btn secondary small">View</a>
         {% if is_admin %}
           <a href="{% url 'order_status_update' order.id %}" class="btn secondary small">Update status</a>
           <form method="post" action="{% url 'order_delete' order.id %}" class="inline-form"
@@ -55,8 +73,6 @@
               {% csrf_token %}
               <button type="submit" class="btn secondary small">Delete</button>
             </form>
-          {% else %}
-            <span class="muted">No actions</span>
           {% endif %}
         {% endif %}
       </td>
@@ -66,8 +82,8 @@
 </table>
 {% else %}
   <p class="empty">
-    {% if is_admin %}No orders have been placed yet.{% else %}You have not placed any orders yet.{% endif %}
-    <a href="{% url 'product_list' %}">Browse products</a>.
+    No orders found.
+    {% if not is_admin %} <a href="{% url 'product_list' %}">Browse products</a>.{% endif %}
   </p>
 {% endif %}
 {% endblock %}

@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>EzyTech PD2 Completion Report</title>
+<style>
+  @page { size: A4; margin: 18mm 16mm; }
+  * { box-sizing: border-box; }
+  body { font-family: Arial, Helvetica, sans-serif; color: #1d2733; font-size: 10.5pt; line-height: 1.42; margin: 0; }
+  h1 { font-size: 23pt; color: #1f3a5f; margin: 0 0 4px; }
+  h2 { font-size: 14pt; color: #1f3a5f; border-bottom: 2px solid #1f3a5f; padding-bottom: 3px; margin: 22px 0 9px; }
+  h3 { font-size: 11.5pt; color: #243b55; margin: 14px 0 6px; }
+  p { margin: 5px 0; }
+  ul { margin: 5px 0 8px; padding-left: 20px; }
+  li { margin: 2px 0; }
+  table { width: 100%; border-collapse: collapse; margin: 8px 0 12px; font-size: 9.6pt; }
+  th { background: #1f3a5f; color: #fff; text-align: left; padding: 6px 7px; }
+  td { border: 1px solid #cfd6de; padding: 5px 7px; vertical-align: top; }
+  tr:nth-child(even) td { background: #f7f9fb; }
+  .cover { border: 2px solid #1f3a5f; border-radius: 10px; padding: 26px 30px; margin-bottom: 18px; }
+  .subtitle { font-size: 13pt; color: #45566b; margin-bottom: 18px; }
+  .meta { display: grid; grid-template-columns: 150px 1fr; row-gap: 7px; font-size: 10.5pt; }
+  .meta .k { color: #56687d; font-weight: bold; }
+  .badge { display: inline-block; background: #d4edda; color: #155724; border-radius: 10px; padding: 1px 8px; font-size: 9pt; font-weight: bold; }
+  .note { background: #f1f4f8; border-left: 4px solid #1f3a5f; padding: 8px 11px; margin: 10px 0; }
+  .small { font-size: 9pt; color: #56687d; }
+  .page-break { page-break-before: always; }
+  code { background: #eef2f6; padding: 1px 4px; border-radius: 3px; font-size: 9.5pt; }
+  .sig { margin-top: 34px; display: flex; gap: 60px; }
+  .sig div { border-top: 1px solid #333; padding-top: 5px; width: 240px; text-align: center; font-size: 9.5pt; }
+</style>
+</head>
+<body>
+
+<div class="cover">
+  <h1>Project Development 2</h1>
+  <div class="subtitle">Completion Report — Core Feature Vertical Slice</div>
+  <div class="meta">
+    <div class="k">System Name</div><div>EzyTech</div>
+    <div class="k">Core Feature</div><div>Product Catalog &amp; Order Management</div>
+    <div class="k">Student</div><div>Cardenas, Peter Martin</div>
+    <div class="k">Section</div><div>G2</div>
+    <div class="k">Course</div><div>Project Development 2</div>
+    <div class="k">Date</div><div>November 16, 2026</div>
+    <div class="k">Repository</div><div>github.com/cardenas-469/EzyTech-Cardenas-PeterMartin-G2</div>
+    <div class="k">Status</div><div><span class="badge">Complete</span></div>
+  </div>
+</div>
+
+<h2>1. Project Overview</h2>
+<p>EzyTech is a Django + PostgreSQL e-commerce platform for technology products. Project Development 1 delivered the account and role features. Project Development 2 adds the approved core feature — <strong>Product Catalog &amp; Order Management</strong> — as a complete vertical slice from the database to the user interface.</p>
+<p>Users can browse products, place orders, and track them. Administrators manage the catalog and process customer orders. All feature records are stored in PostgreSQL/Supabase.</p>
+
+<h2>2. Features Implemented</h2>
+
+<h3>2.1 Standard Features (PD1) — still working</h3>
+<table>
+  <tr><th style="width:26%">Feature</th><th style="width:14%">Status</th><th>Notes</th></tr>
+  <tr><td>Account Registration</td><td>Complete</td><td>Custom user model, unique email, password validation, success and error messages.</td></tr>
+  <tr><td>Login / Logout</td><td>Complete</td><td>Django authentication, protected routes, POST-based logout.</td></tr>
+  <tr><td>Role-Based User Dashboard</td><td>Complete</td><td>Separate admin and customer dashboards with live product/order statistics and feature links.</td></tr>
+  <tr><td>User Profile</td><td>Complete</td><td>View and edit first name, last name, email, contact number, and profile photo.</td></tr>
+</table>
+
+<h3>2.2 Core Feature (PD2) — Product Catalog &amp; Order Management</h3>
+
+<p><strong>Database layer</strong></p>
+<ul>
+  <li><code>Product</code>: name, description, price, stock, <code>created_by</code> (ForeignKey to <code>User</code>), created timestamp.</li>
+  <li><code>Order</code>: <code>user</code> (ForeignKey to <code>User</code>), <code>product</code> (ForeignKey to <code>Product</code>, <code>PROTECT</code>), quantity, total price, status, created timestamp.</li>
+  <li>Relationships follow the ERD: one user has many orders; one product appears in many orders.</li>
+  <li>Migrations are committed and applied to PostgreSQL/Supabase.</li>
+</ul>
+
+<p><strong>Status flow:</strong> Pending → Confirmed → Shipped → Completed. Pending and Confirmed orders may be cancelled. Cancelled and Completed are terminal states.</p>
+
+<p><strong>Backend layer</strong></p>
+<ul>
+  <li>Product list with search, product create, update, and delete.</li>
+  <li>Checkout with server-side validation, stock deduction, and order creation.</li>
+  <li>Order history with status filtering and search, plus a dedicated order detail page.</li>
+  <li>Order cancellation, order deletion, and admin-controlled status updates.</li>
+  <li>Django views, ModelForms, and URL routes for every operation.</li>
+</ul>
+
+<p><strong>Frontend layer</strong></p>
+<ul>
+  <li>Django templates for catalog, product form, delete confirmation, checkout, order history, order detail, and status update.</li>
+  <li>Clear success and error messages for every action.</li>
+  <li>Role-aware navigation bar and dashboard links.</li>
+</ul>
+
+<h3>2.3 CRUD Coverage</h3>
+<table>
+  <tr><th style="width:18%">Entity</th><th style="width:20%">Create</th><th style="width:22%">Read</th><th style="width:18%">Update</th><th>Delete</th></tr>
+  <tr><td>Product</td><td>Admin</td><td>Logged-in users</td><td>Admin</td><td>Admin (blocked when orders exist)</td></tr>
+  <tr><td>Order</td><td>Customer checkout</td><td>Owner or admin</td><td>Status: admin; cancel: owner</td><td>Owner (cancelled only) or admin</td></tr>
+</table>
+
+<h3>2.4 Validation and Business Rules</h3>
+<ul>
+  <li>Quantity must be at least 1 and cannot exceed available stock.</li>
+  <li>Price must be greater than zero; product name has a minimum length; stock cannot be negative.</li>
+  <li>Checkout runs inside <code>transaction.atomic()</code> with <code>select_for_update()</code> to prevent overselling under concurrent requests.</li>
+  <li>Cancelling or deleting an active order restores stock exactly once.</li>
+  <li>Cancelled orders already have their stock restored; completed sales keep their stock deduction.</li>
+  <li>Products with order history cannot be deleted, preserving transaction records.</li>
+  <li>Invalid order status transitions are rejected.</li>
+</ul>
+
+<h3>2.5 Account Integration and Role-Based Access</h3>
+<ul>
+  <li>Every feature page requires login.</li>
+  <li>Orders are linked to the logged-in user through <code>Order.user</code>.</li>
+  <li>Customers only see and manage their own orders; attempts to access another customer's order are rejected.</li>
+  <li>Only admins can create, edit, or delete products and change order statuses.</li>
+  <li>Feature links appear on the correct role dashboard; admin-only links are hidden from customers.</li>
+</ul>
+
+<div class="page-break"></div>
+
+<h2>3. Branches and Pull Requests</h2>
+<table>
+  <tr><th style="width:27%">Branch</th><th style="width:37%">Purpose</th><th style="width:18%">Pull Request</th><th>Result</th></tr>
+  <tr><td><code>feature/product-catalog</code></td><td>Initial catalog and checkout vertical slice</td><td>PR #1 → <code>develop</code></td><td>Merged</td></tr>
+  <tr><td><code>feature/product-catalog-fixes</code></td><td>Fix catalog crash, product CRUD, validation, role access, automated tests</td><td>PR #3 → <code>develop</code></td><td>Merged</td></tr>
+  <tr><td><code>feature/order-management</code></td><td>Order detail, filtering/search, dashboard statistics, account tests</td><td>PR #4 → <code>develop</code></td><td>Merged</td></tr>
+  <tr><td><code>develop</code> → <code>main</code></td><td>Final PD2 increment release</td><td>PR #5 → <code>main</code></td><td>Merged</td></tr>
+</table>
+<p>Merged feature branches were kept. <code>main</code> receives stable code only through merged release pull requests. <code>develop</code> is the integration branch for feature pull requests.</p>
+
+<h2>4. Testing Summary</h2>
+<div class="note"><strong>Result:</strong> 42 automated tests pass using <code>python manage.py test --settings=config.settings_test</code>.</div>
+<p>Coverage includes:</p>
+<ul>
+  <li>Registration, duplicate-email rejection, login, logout, role dashboards, and profile updates.</li>
+  <li>Product CRUD permissions, invalid price rejection, and deletion protection for products with orders.</li>
+  <li>Checkout validation, stock deduction, zero/over-stock quantity rejection, and order ownership.</li>
+  <li>Order cancellation, deletion, status transitions, and stock restoration.</li>
+  <li>Order detail access isolation, status filtering, search by product/customer, and dashboard statistics.</li>
+</ul>
+<p>Manual smoke testing was also performed against the PostgreSQL/Supabase database for the catalog, product management, checkout, order detail, filters, and both role dashboards.</p>
+
+<h2>5. Remaining Tasks</h2>
+<p>All required PD2 features are complete. Optional future enhancements:</p>
+<ul>
+  <li>Payment gateway integration</li>
+  <li>Multi-item shopping cart and checkout</li>
+  <li>Email/SMS order notifications</li>
+  <li>Order receipt printing or export</li>
+  <li>Product images and categories</li>
+  <li>Production deployment hardening (environment-specific settings, allowed hosts, static files)</li>
+</ul>
+
+<h2>6. Outstanding Issues</h2>
+<ul>
+  <li>Supabase's connection pooler does not support the <code>CREATE DATABASE</code> statement used by Django's test runner. Tests therefore use an in-memory SQLite settings module (<code>config.settings_test</code>), while the application itself reads and writes PostgreSQL/Supabase. This is documented in the README.</li>
+  <li>The optional <code>sample_products</code> fixture creates seed data without a <code>created_by</code> user because it is system-provided. Products created through the admin UI are correctly linked to the admin who created them.</li>
+  <li>Checkout is single-product per order, matching the approved scope. A multi-item cart is future work.</li>
+  <li>Development test accounts must be rotated or removed before public deployment.</li>
+</ul>
+
+<h2>7. Test Accounts</h2>
+<table>
+  <tr><th style="width:25%">Role</th><th style="width:30%">Username</th><th>Password</th></tr>
+  <tr><td>Admin</td><td><code>admin.test</code></td><td><code>EzyTechAdmin2026!</code></td></tr>
+  <tr><td>Customer</td><td><code>customer.test</code></td><td><code>EzyTechCustomer2026!</code></td></tr>
+</table>
+<p class="small">These accounts exist in the Supabase development database. Rotate credentials before public deployment.</p>
+
+<h2>8. Repository Links</h2>
+<ul>
+  <li>Repository: https://github.com/cardenas-469/EzyTech-Cardenas-PeterMartin-G2</li>
+  <li>Pull requests: https://github.com/cardenas-469/EzyTech-Cardenas-PeterMartin-G2/pulls</li>
+  <li>Report PDF: <code>docs/EzyTech-Cardenas-PeterMartin-G2-PD2.pdf</code></li>
+</ul>
+
+<div class="sig">
+  <div>Peter Martin Cardenas<br>Student</div>
+  <div>Instructor<br>Project Development 2</div>
+</div>
+
+</body>
+</html>
