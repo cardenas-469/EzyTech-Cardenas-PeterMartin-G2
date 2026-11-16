@@ -1,26 +1,54 @@
 {% extends 'accounts/base.html' %}
+{% block title %}Product Catalog{% endblock %}
 {% block content %}
-<div class="container mt-4">
-    <h2>Product Catalog</h2>
-    <a href="{% url 'product_form' %}" class="btn btn-success mb-3">Add Product</a>
-    <a href="{% url 'order_history' %}" class="btn btn-info mb-3">My Orders</a>
-    <div class="row">
-        {% for product in products %}
-        <div class="col-md-4 mb-3">
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title">{{ product.name }}</h5>
-                    <p class="card-text">{{ product.description }}</p>
-                    <p class="card-text"><strong>${{ product.price }}</strong> (Stock: {{ product.stock }})</p>
-                    {% if product.stock > 0 %}
-                        <a href="{% url 'order_checkout' product.id %}" class="btn btn-primary">Checkout</a>
-                    {% else %}
-                        <span class="text-danger">Out of Stock</span>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
-        {% endfor %}
-    </div>
+<h2>Product Catalog</h2>
+
+<div class="toolbar">
+  <form method="get">
+    <input type="search" name="q" value="{{ query }}" placeholder="Search products...">
+    <button type="submit" class="btn">Search</button>
+    {% if query %}<a href="{% url 'product_list' %}" class="btn secondary">Clear</a>{% endif %}
+  </form>
+  {% if user.role == 'admin' %}
+    <a href="{% url 'product_create' %}" class="btn">+ Add Product</a>
+  {% endif %}
 </div>
+
+{% if products %}
+  <div class="grid">
+    {% for product in products %}
+      <div class="card">
+        <h3>{{ product.name }}</h3>
+        <p>{{ product.description }}</p>
+        <p><strong>${{ product.price }}</strong></p>
+        <p class="muted">
+          {% if product.in_stock %}
+            In stock: {{ product.stock }}
+          {% else %}
+            <span class="err">Out of stock</span>
+          {% endif %}
+        </p>
+        <div class="actions">
+          {% if product.in_stock %}
+            <a href="{% url 'order_checkout' product.id %}" class="btn">Order now</a>
+          {% else %}
+            <span class="btn disabled" aria-disabled="true">Unavailable</span>
+          {% endif %}
+          {% if user.role == 'admin' %}
+            <a href="{% url 'product_update' product.id %}" class="btn secondary small">Edit</a>
+            <a href="{% url 'product_delete' product.id %}" class="btn danger small">Delete</a>
+          {% endif %}
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+{% else %}
+  <p class="empty">
+    {% if query %}
+      No products match "{{ query }}".
+    {% else %}
+      No products are available yet.
+    {% endif %}
+  </p>
+{% endif %}
 {% endblock %}

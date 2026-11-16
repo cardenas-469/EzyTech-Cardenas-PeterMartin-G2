@@ -1,11 +1,13 @@
 {% extends 'accounts/base.html' %}
+{% block title %}{% if is_edit %}Edit Product{% else %}Add Product{% endif %}{% endblock %}
 {% block content %}
-<div class="container mt-4">
-    <h2>Add New Product</h2>
-    <form method="POST">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit" class="btn btn-success">Save Product</button>
-    </form>
-</div>
+<h2>{% if is_edit %}Edit Product{% else %}Add New Product{% endif %}</h2>
+<p class="muted">Only administrators can create and manage products.</p>
+
+<form method="post" novalidate>
+  {% csrf_token %}
+  {{ form.as_p }}
+  <button type="submit" class="btn">{% if is_edit %}Save Changes{% else %}Save Product{% endif %}</button>
+  <a href="{% url 'product_list' %}" class="btn secondary">Cancel</a>
+</form>
 {% endblock %}

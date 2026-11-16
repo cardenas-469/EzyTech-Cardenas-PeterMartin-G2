@@ -1,31 +1,73 @@
 {% extends 'accounts/base.html' %}
+{% block title %}{% if is_admin %}All Orders{% else %}My Orders{% endif %}{% endblock %}
 {% block content %}
-<div class="container mt-4">
-    <h2>My Order History</h2>
-    <a href="{% url 'product_list' %}" class="btn btn-secondary mb-3">Back to Catalog</a>
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Order ID</th>
-                <th>Product</th>
-                <th>Quantity</th>
-                <th>Total Price</th>
-                <th>Status</th>
-                <th>Date</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for order in orders %}
-            <tr>
-                <td>#{{ order.id }}</td>
-                <td>{{ order.product.name }}</td>
-                <td>{{ order.quantity }}</td>
-                <td>${{ order.total_price }}</td>
-                <td>{{ order.status }}</td>
-                <td>{{ order.created_at }}</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-</div>
+<h2>{% if is_admin %}All Orders{% else %}My Order History{% endif %}</h2>
+<p class="muted">
+  {% if is_admin %}
+    Review every customer order and update its status.
+  {% else %}
+    Track your orders. Pending orders can be cancelled, and cancelled orders can be deleted.
+  {% endif %}
+</p>
+
+{% if orders %}
+<table>
+  <thead>
+    <tr>
+      <th>Order</th>
+      {% if is_admin %}<th>Customer</th>{% endif %}
+      <th>Product</th>
+      <th>Qty</th>
+      <th>Total</th>
+      <th>Status</th>
+      <th>Date</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for order in orders %}
+    <tr>
+      <td>#{{ order.id }}</td>
+      {% if is_admin %}<td>{{ order.user.username }}</td>{% endif %}
+      <td>{{ order.product.name }}</td>
+      <td>{{ order.quantity }}</td>
+      <td>${{ order.total_price }}</td>
+      <td><span class="badge {{ order.status }}">{{ order.status }}</span></td>
+      <td>{{ order.created_at|date:"M d, Y H:i" }}</td>
+      <td>
+        {% if is_admin %}
+          <a href="{% url 'order_status_update' order.id %}" class="btn secondary small">Update status</a>
+          <form method="post" action="{% url 'order_delete' order.id %}" class="inline-form"
+                onsubmit="return confirm('Delete order #{{ order.id }}?');">
+            {% csrf_token %}
+            <button type="submit" class="btn danger small">Delete</button>
+          </form>
+        {% else %}
+          {% if order.status == 'Pending' %}
+            <form method="post" action="{% url 'order_cancel' order.id %}" class="inline-form"
+                  onsubmit="return confirm('Cancel order #{{ order.id }}?');">
+              {% csrf_token %}
+              <button type="submit" class="btn danger small">Cancel</button>
+            </form>
+          {% elif order.status == 'Cancelled' %}
+            <form method="post" action="{% url 'order_delete' order.id %}" class="inline-form"
+                  onsubmit="return confirm('Delete cancelled order #{{ order.id }}?');">
+              {% csrf_token %}
+              <button type="submit" class="btn secondary small">Delete</button>
+            </form>
+          {% else %}
+            <span class="muted">No actions</span>
+          {% endif %}
+        {% endif %}
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+  <p class="empty">
+    {% if is_admin %}No orders have been placed yet.{% else %}You have not placed any orders yet.{% endif %}
+    <a href="{% url 'product_list' %}">Browse products</a>.
+  </p>
+{% endif %}
 {% endblock %}
