@@ -1,5 +1,8 @@
+from decimal import Decimal
+
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.db.models import Sum
 from django.shortcuts import render, redirect
 
 from .decorators import role_required
@@ -30,12 +33,41 @@ def dashboard_redirect(request):
 
 @role_required('admin')
 def admin_dashboard(request):
-    return render(request, 'accounts/admin_dashboard.html')
+    from products.models import Order, Product
+
+    active_orders = Order.objects.filter(
+        status__in=[Order.STATUS_PENDING, Order.STATUS_CONFIRMED, Order.STATUS_SHIPPED]
+    )
+    sales = Order.objects.filter(
+        status__in=[Order.STATUS_CONFIRMED, Order.STATUS_SHIPPED, Order.STATUS_COMPLETED]
+    ).aggregate(total=Sum('total_price'))['total'] or Decimal('0.00')
+
+    context = {
+        'product_count': Product.objects.count(),
+        'low_stock_count': Product.objects.filter(stock__lte=5).count(),
+        'pending_count': Order.objects.filter(status=Order.STATUS_PENDING).count(),
+        'active_order_count': active_orders.count(),
+        'total_sales': sales,
+        'recent_orders': Order.objects.select_related('user', 'product')[:5],
+    }
+    return render(request, 'accounts/admin_dashboard.html', context)
 
 
 @role_required('customer')
 def customer_dashboard(request):
-    return render(request, 'accounts/customer_dashboard.html')
+    from products.models import Order
+
+    my_orders = Order.objects.filter(user=request.user).select_related('product')
+    context = {
+        'order_count': my_orders.count(),
+        'pending_count': my_orders.filter(status=Order.STATUS_PENDING).count(),
+        'completed_count': my_orders.filter(status=Order.STATUS_COMPLETED).count(),
+        'total_spent': my_orders.exclude(status=Order.STATUS_CANCELLED).aggregate(
+            total=Sum('total_price')
+        )['total'] or Decimal('0.00'),
+        'recent_orders': my_orders[:3],
+    }
+    return render(request, 'accounts/customer_dashboard.html', context)
 
 
 @login_required

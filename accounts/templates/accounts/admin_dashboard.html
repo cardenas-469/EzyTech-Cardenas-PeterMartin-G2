@@ -4,6 +4,15 @@
 <h2>Admin Dashboard</h2>
 <p>Welcome, {{ user.first_name|default:user.username }}. You are logged in as an <strong>Admin</strong>.</p>
 
+<div class="stats">
+  <div class="stat"><div class="value">{{ product_count }}</div><div class="label">Products</div></div>
+  <div class="stat"><div class="value">{{ pending_count }}</div><div class="label">Pending orders</div></div>
+  <div class="stat"><div class="value">{{ active_order_count }}</div><div class="label">Active orders</div></div>
+  <div class="stat"><div class="value">{{ low_stock_count }}</div><div class="label">Low stock (5 or fewer)</div></div>
+  <div class="stat"><div class="value">${{ total_sales }}</div><div class="label">Confirmed sales</div></div>
+</div>
+
+<h3 class="section-title">Management</h3>
 <ul>
   <li><a href="{% url 'product_create' %}">Add a product</a></li>
   <li><a href="{% url 'product_list' %}">Manage product catalog</a></li>
@@ -12,5 +21,27 @@
   <li><a href="/admin/">Django administration</a></li>
 </ul>
 
-<p class="muted">Admin accounts manage the product catalog and update customer order statuses.</p>
+<h3 class="section-title">Recent orders</h3>
+{% if recent_orders %}
+<table>
+  <thead>
+    <tr><th>Order</th><th>Customer</th><th>Product</th><th>Qty</th><th>Total</th><th>Status</th><th></th></tr>
+  </thead>
+  <tbody>
+    {% for order in recent_orders %}
+    <tr>
+      <td>#{{ order.id }}</td>
+      <td>{{ order.user.username }}</td>
+      <td>{{ order.product.name }}</td>
+      <td>{{ order.quantity }}</td>
+      <td>${{ order.total_price }}</td>
+      <td><span class="badge {{ order.status }}">{{ order.status }}</span></td>
+      <td><a href="{% url 'order_detail' order.id %}">View</a></td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+  <p class="empty">No orders have been placed yet.</p>
+{% endif %}
 {% endblock %}
