@@ -1,0 +1,12 @@
+{% extends 'accounts/base.html' %}
+{% block content %}
+<div class="container mt-4">
+    <h2>Checkout: {{ product.name }}</h2>
+    <p>Price: ${{ product.price }} | Available Stock: {{ product.stock }}</p>
+    <form method="POST">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-primary">Confirm Order</button>
+    </form>
+</div>
+{% endblock %}
