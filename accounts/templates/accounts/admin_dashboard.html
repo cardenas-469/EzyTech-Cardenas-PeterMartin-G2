@@ -1,0 +1,10 @@
+{% extends 'accounts/base.html' %}
+{% block title %}Admin Dashboard{% endblock %}
+{% block content %}
+<h2>Admin Dashboard</h2>
+<p>Welcome, {{ user.first_name|default:user.username }}. You are logged in as an <strong>Admin</strong>.</p>
+<ul>
+  <li><a href="/admin/">Manage users (Django admin)</a></li>
+  <li><a href="{% url 'profile' %}">My profile</a></li>
+</ul>
+{% endblock %}
