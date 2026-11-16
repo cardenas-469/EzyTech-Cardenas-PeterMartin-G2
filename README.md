@@ -104,9 +104,11 @@ Customers can browse the product catalog, view live stock, place an order throug
 
 ## Running Tests
 
-Supabase's connection pooler does not support Django's test-database creation, so tests use a separate in-memory SQLite settings module:
+Supabase's connection pooler does not support Django's test-database creation, so `manage.py test` automatically switches to an in-memory SQLite database. The application itself always uses PostgreSQL/Supabase. You can also run the explicit test settings module:
 
 ```bash
+python manage.py test
+# or
 python manage.py test --settings=config.settings_test
 ```
 
@@ -118,7 +120,8 @@ Current suite: 42 tests covering registration/login/profile, role dashboards, ca
 - `develop` – integration branch
 - `feature/product-catalog` – catalog + checkout vertical slice (merged to `develop` via PR #1)
 - `feature/product-catalog-fixes` – catalog hardening, validation, CRUD, role access, tests (PR into `develop`)
-- `feature/order-management` – order cancellation/status management (PR into `develop`)
+- `feature/order-management` – order detail, status filtering/search, dashboard statistics (PR #4 into `develop`)
+- `feature/test-database-config` – automatic SQLite test database fallback (PR #6 into `develop`)
 
 Increment PRs: feature branches → `develop`; then `develop` → `main`.
 

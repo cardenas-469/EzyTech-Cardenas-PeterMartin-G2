@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 
 from pathlib import Path
 import os 
+import sys
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -86,6 +87,15 @@ DATABASES = {
         'PORT': os.getenv('DB_PORT'),
     }
 }
+
+# Supabase's connection pooler does not allow Django's test runner to create a
+# test database. Fall back to an in-memory SQLite database for test runs only;
+# normal development and production traffic still uses PostgreSQL.
+if 'test' in sys.argv:
+    DATABASES['default'] = {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': ':memory:',
+    }
 
 
 # Password validation
