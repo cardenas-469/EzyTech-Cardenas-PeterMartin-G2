@@ -125,12 +125,14 @@
   <tr><td><code>feature/product-catalog</code></td><td>Initial catalog and checkout vertical slice</td><td>PR #1 → <code>develop</code></td><td>Merged</td></tr>
   <tr><td><code>feature/product-catalog-fixes</code></td><td>Fix catalog crash, product CRUD, validation, role access, automated tests</td><td>PR #3 → <code>develop</code></td><td>Merged</td></tr>
   <tr><td><code>feature/order-management</code></td><td>Order detail, filtering/search, dashboard statistics, account tests</td><td>PR #4 → <code>develop</code></td><td>Merged</td></tr>
-  <tr><td><code>develop</code> → <code>main</code></td><td>Final PD2 increment release</td><td>PR #5 → <code>main</code></td><td>Merged</td></tr>
+  <tr><td><code>feature/test-database-config</code></td><td>Automatic SQLite test database fallback for Supabase</td><td>PR #6 → <code>develop</code></td><td>Merged</td></tr>
+  <tr><td><code>develop</code> → <code>main</code></td><td>First PD2 release increment</td><td>PR #5 → <code>main</code></td><td>Merged</td></tr>
+  <tr><td><code>develop</code> → <code>main</code></td><td>Final PD2 release increment (test config + report)</td><td>PR #7 → <code>main</code></td><td>Merged</td></tr>
 </table>
 <p>Merged feature branches were kept. <code>main</code> receives stable code only through merged release pull requests. <code>develop</code> is the integration branch for feature pull requests.</p>
 
 <h2>4. Testing Summary</h2>
-<div class="note"><strong>Result:</strong> 42 automated tests pass using <code>python manage.py test --settings=config.settings_test</code>.</div>
+<div class="note"><strong>Result:</strong> 42 automated tests pass using <code>python manage.py test</code>.</div>
 <p>Coverage includes:</p>
 <ul>
   <li>Registration, duplicate-email rejection, login, logout, role dashboards, and profile updates.</li>
@@ -154,7 +156,7 @@
 
 <h2>6. Outstanding Issues</h2>
 <ul>
-  <li>Supabase's connection pooler does not support the <code>CREATE DATABASE</code> statement used by Django's test runner. Tests therefore use an in-memory SQLite settings module (<code>config.settings_test</code>), while the application itself reads and writes PostgreSQL/Supabase. This is documented in the README.</li>
+  <li>Supabase's connection pooler does not support the <code>CREATE DATABASE</code> statement used by Django's test runner. <code>manage.py test</code> therefore automatically switches to an in-memory SQLite database, while the application itself reads and writes PostgreSQL/Supabase. An explicit <code>config.settings_test</code> module is also provided. This is documented in the README.</li>
   <li>The optional <code>sample_products</code> fixture creates seed data without a <code>created_by</code> user because it is system-provided. Products created through the admin UI are correctly linked to the admin who created them.</li>
   <li>Checkout is single-product per order, matching the approved scope. A multi-item cart is future work.</li>
   <li>Development test accounts must be rotated or removed before public deployment.</li>
