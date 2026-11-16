@@ -3,7 +3,12 @@
 {% block content %}
 <h2>Customer Dashboard</h2>
 <p>Welcome, {{ user.first_name|default:user.username }}. You are logged in as a <strong>Customer</strong>.</p>
+
 <ul>
+  <li><a href="{% url 'product_list' %}">Browse products</a></li>
+  <li><a href="{% url 'order_history' %}">My orders</a></li>
   <li><a href="{% url 'profile' %}">My profile</a></li>
 </ul>
+
+<p class="muted">Order technology products, track your order status, and manage your account.</p>
 {% endblock %}

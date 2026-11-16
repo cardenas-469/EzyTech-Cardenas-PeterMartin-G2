@@ -1,12 +1,17 @@
 {% extends 'accounts/base.html' %}
+{% block title %}Checkout{% endblock %}
 {% block content %}
-<div class="container mt-4">
-    <h2>Checkout: {{ product.name }}</h2>
-    <p>Price: ${{ product.price }} | Available Stock: {{ product.stock }}</p>
-    <form method="POST">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit" class="btn btn-primary">Confirm Order</button>
-    </form>
-</div>
+<h2>Checkout: {{ product.name }}</h2>
+<p>{{ product.description }}</p>
+<p>
+  Price: <strong>${{ product.price }}</strong> |
+  Available stock: <strong>{{ product.stock }}</strong>
+</p>
+
+<form method="post" novalidate>
+  {% csrf_token %}
+  {{ form.as_p }}
+  <button type="submit" class="btn">Confirm Order</button>
+  <a href="{% url 'product_list' %}" class="btn secondary">Back to Catalog</a>
+</form>
 {% endblock %}

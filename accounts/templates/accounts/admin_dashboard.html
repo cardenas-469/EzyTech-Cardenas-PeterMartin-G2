@@ -3,8 +3,14 @@
 {% block content %}
 <h2>Admin Dashboard</h2>
 <p>Welcome, {{ user.first_name|default:user.username }}. You are logged in as an <strong>Admin</strong>.</p>
+
 <ul>
-  <li><a href="/admin/">Manage users (Django admin)</a></li>
+  <li><a href="{% url 'product_create' %}">Add a product</a></li>
+  <li><a href="{% url 'product_list' %}">Manage product catalog</a></li>
+  <li><a href="{% url 'order_history' %}">Manage all customer orders</a></li>
   <li><a href="{% url 'profile' %}">My profile</a></li>
+  <li><a href="/admin/">Django administration</a></li>
 </ul>
+
+<p class="muted">Admin accounts manage the product catalog and update customer order statuses.</p>
 {% endblock %}
