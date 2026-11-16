@@ -1,0 +1,26 @@
+{% extends 'accounts/base.html' %}
+{% block content %}
+<div class="container mt-4">
+    <h2>Product Catalog</h2>
+    <a href="{% url 'product_form' %}" class="btn btn-success mb-3">Add Product</a>
+    <a href="{% url 'order_history' %}" class="btn btn-info mb-3">My Orders</a>
+    <div class="row">
+        {% for product in products %}
+        <div class="col-md-4 mb-3">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">{{ product.name }}</h5>
+                    <p class="card-text">{{ product.description }}</p>
+                    <p class="card-text"><strong>${{ product.price }}</strong> (Stock: {{ product.stock }})</p>
+                    {% if product.stock > 0 %}
+                        <a href="{% url 'order_checkout' product.id %}" class="btn btn-primary">Checkout</a>
+                    {% else %}
+                        <span class="text-danger">Out of Stock</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
