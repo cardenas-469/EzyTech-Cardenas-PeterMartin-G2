@@ -408,3 +408,39 @@ class OrderDetailAndFilterTests(BaseProductTestCase):
         self.assertNotContains(response, f'<td>#{self.pending_order.id}</td>')
         response = self.client.get(reverse('order_history'), {'q': 'customer'})
         self.assertContains(response, f'<td>#{self.pending_order.id}</td>')
+
+
+class SeedProductsCommandTests(BaseProductTestCase):
+    def test_seed_products_links_demo_and_ownerless_products_to_admin(self):
+        from io import StringIO
+
+        from django.core.management import call_command
+
+        ownerless = Product.objects.create(
+            name='Ownerless Item',
+            description='Created without an owner.',
+            price=Decimal('10.00'),
+            stock=1,
+        )
+        output = StringIO()
+
+        call_command('seed_products', '--admin', self.admin.username, stdout=output)
+
+        self.assertTrue(
+            Product.objects.filter(
+                name='AeroBook 14 Laptop', created_by=self.admin
+            ).exists()
+        )
+        ownerless.refresh_from_db()
+        self.assertEqual(ownerless.created_by, self.admin)
+        self.assertIn('ownerless product(s) linked', output.getvalue())
+
+    def test_seed_products_fails_without_an_admin(self):
+        from io import StringIO
+
+        from django.core.management import call_command
+        from django.core.management.base import CommandError
+
+        User.objects.all().delete()
+        with self.assertRaises(CommandError):
+            call_command('seed_products', stdout=StringIO())

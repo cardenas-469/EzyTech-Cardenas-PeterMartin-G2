@@ -79,8 +79,11 @@ Customers can browse the product catalog, view live stock, place an order throug
 
 6. (Optional) Load sample products for a quick demo:
    ```bash
-   python manage.py loaddata sample_products
+   python manage.py seed_products
    ```
+   The command links the demo products to an admin account. Pass
+   `--admin <username>` to choose a specific admin. It also repairs any
+   existing product that has no owner.
 
 7. Create an admin account if you do not have one:
    ```bash
