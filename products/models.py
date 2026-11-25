@@ -6,7 +6,7 @@ from django.db import models
 
 
 class Product(models.Model):
-    name = models.CharField(max_length=150)
+    name = models.CharField(max_length=150, unique=True)
     description = models.TextField()
     price = models.DecimalField(
         max_digits=10,
@@ -25,6 +25,16 @@ class Product(models.Model):
 
     class Meta:
         ordering = ['-created_at']
+        constraints = [
+            models.CheckConstraint(
+                check=models.Q(price__gt=0),
+                name='product_price_positive',
+            ),
+            models.CheckConstraint(
+                check=models.Q(stock__gte=0),
+                name='product_stock_non_negative',
+            ),
+        ]
 
     def __str__(self):
         return self.name
@@ -79,6 +89,16 @@ class Order(models.Model):
 
     class Meta:
         ordering = ['-created_at']
+        constraints = [
+            models.CheckConstraint(
+                check=models.Q(quantity__gte=1),
+                name='order_quantity_positive',
+            ),
+            models.CheckConstraint(
+                check=models.Q(total_price__gt=0),
+                name='order_total_price_positive',
+            ),
+        ]
 
     def __str__(self):
         return f'Order #{self.id} - {self.product.name}'
