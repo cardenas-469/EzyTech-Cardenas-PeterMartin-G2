@@ -147,6 +147,8 @@ Increment PRs: work branches → `develop`; then `develop` → `main`.
 
 ## Project Documentation
 
+- `docs/EzyTech-Cardenas-PeterMartin-G2-PD3.pdf` – completed official PD3 hardening report
+- `docs/EzyTech-Cardenas-PeterMartin-G2-PD3.docx` – editable PD3 report source
 - `docs/EzyTech-Cardenas-PeterMartin-G2-PD2.pdf` – completed official PD2 report with user-flow screenshots
-- `docs/EzyTech-Cardenas-PeterMartin-G2-PD2.docx` – editable report source
-- `docs/screenshots/` – screenshots used in the report
+- `docs/EzyTech-Cardenas-PeterMartin-G2-PD2.docx` – editable PD2 report source
+- `docs/screenshots/` – PD2 user-flow screenshots plus PD3 validation, blocked-access, 404, and test-output evidence
