@@ -1,6 +1,18 @@
-# EzyTech – Project Development 2 (PD2)
+# EzyTech – Project Development 3 (PD3)
 
-EzyTech is a Django + PostgreSQL e-commerce platform for technology products. This repository contains the Account feature from Project Development 1 plus the PD2 core feature: **Product Catalog & Order Management**, implemented as a full vertical slice (database → backend → templates).
+EzyTech is a Django + PostgreSQL e-commerce platform for technology products. This repository contains the Account feature from Project Development 1, the PD2 core feature (**Product Catalog & Order Management**), and the PD3 hardening work that makes the feature reliable, secure, and tested.
+
+## Hardening (PD3)
+
+PD3 does not add new features. It hardens the existing vertical slice:
+
+- **Validation:** every core form validates on the server (quantity vs. stock, positive price, unique product name, contact number format, case-insensitive unique e-mail, and profile-photo type/size).
+- **Error handling:** custom 403, 404, and 500 pages replace Django debug pages; invalid IDs use `get_object_or_404`.
+- **Configuration:** `DEBUG`, `ALLOWED_HOSTS`, and optional HTTPS flags are read from `.env`; secrets never live in code.
+- **Access control:** all core views require login, roles are enforced in the view, and customers cannot read or modify another customer's order by changing the URL.
+- **CSRF and methods:** every POST form includes `{% csrf_token %}`; cancel, delete, and status changes are POST-only and use confirmation pages or dialogs.
+- **Data integrity:** unique product names, database check constraints for prices/totals/quantities/stock, `transaction.atomic()` around multi-step saves, row locking so stock is restored exactly once, `PROTECT`/`SET_NULL`/`CASCADE` on foreign keys, and `select_related` on order lists.
+
 
 ## Core Feature (Vertical Slice)
 
@@ -64,13 +76,17 @@ Customers can browse the product catalog, view live stock, place an order throug
 4. Create a `.env` file in the project root (never commit it):
    ```env
    SECRET_KEY=your-django-secret-key
+   DEBUG=True
+   ALLOWED_HOSTS=localhost,127.0.0.1
    DB_NAME=your_database_name
    DB_USER=your_database_user
    DB_PASSWORD=your_database_password
    DB_HOST=your_database_host
    DB_PORT=5432
    ```
-   A template is available in `.env.example`.
+   A template is available in `.env.example`. Set `DEBUG=False` and configure
+   `SECURE_SSL_REDIRECT`, `SESSION_COOKIE_SECURE`, and `CSRF_COOKIE_SECURE` in
+   production.
 
 5. Apply migrations:
    ```bash
@@ -79,8 +95,11 @@ Customers can browse the product catalog, view live stock, place an order throug
 
 6. (Optional) Load sample products for a quick demo:
    ```bash
-   python manage.py loaddata sample_products
+   python manage.py seed_products
    ```
+   The command links the demo products to an admin account. Pass
+   `--admin <username>` to choose a specific admin. It also repairs any
+   existing product that has no owner.
 
 7. Create an admin account if you do not have one:
    ```bash
@@ -112,21 +131,24 @@ python manage.py test
 python manage.py test --settings=config.settings_test
 ```
 
-Current suite: 42 tests covering registration/login/profile, role dashboards, catalog access, product CRUD permissions, validation, checkout/stock deduction, order isolation, cancellation, deletion, status transitions, order detail access, filtering/search, dashboard statistics, and stock restoration.
+Current suite: 74 tests. It covers registration/login/profile validation, role dashboards, catalog access, product CRUD permissions, duplicate product names, database constraints, checkout/stock deduction, order isolation, cross-user access blocking, CSRF enforcement, POST-only actions, invalid IDs, custom error pages, cancellation/deletion stock restoration, status transitions, filtering/search, dashboard statistics, and profile-photo validation.
 
 ## Branching Workflow
 
 - `main` – stable, merged releases only
 - `develop` – integration branch
-- `feature/product-catalog` – catalog + checkout vertical slice (merged to `develop` via PR #1)
-- `feature/product-catalog-fixes` – catalog hardening, validation, CRUD, role access, tests (PR into `develop`)
-- `feature/order-management` – order detail, status filtering/search, dashboard statistics (PR #4 into `develop`)
-- `feature/test-database-config` – automatic SQLite test database fallback (PR #6 into `develop`)
+- `fix/iss-02-sample-data` – replaces the ownerless sample fixture with a management command (PR #10)
+- `hardening/config-and-errors` – env-driven debug settings, custom error pages, security headers, account validation (PR #11)
+- `hardening/data-integrity` – unique names, database check constraints, row locking (PR #12)
+- `test/core-hardening` – authentication, CSRF, access-control, constraint, and URL tests (PR #13)
+- `docs/pd3-report` – completed official PD3 report and evidence screenshots (PR #14)
 
-Increment PRs: feature branches → `develop`; then `develop` → `main`.
+Increment PRs: work branches → `develop`; then `develop` → `main`.
 
 ## Project Documentation
 
+- `docs/EzyTech-Cardenas-PeterMartin-G2-PD3.pdf` – completed official PD3 hardening report
+- `docs/EzyTech-Cardenas-PeterMartin-G2-PD3.docx` – editable PD3 report source
 - `docs/EzyTech-Cardenas-PeterMartin-G2-PD2.pdf` – completed official PD2 report with user-flow screenshots
-- `docs/EzyTech-Cardenas-PeterMartin-G2-PD2.docx` – editable report source
-- `docs/screenshots/` – screenshots used in the report
+- `docs/EzyTech-Cardenas-PeterMartin-G2-PD2.docx` – editable PD2 report source
+- `docs/screenshots/` – PD2 user-flow screenshots plus PD3 validation, blocked-access, 404, and test-output evidence
